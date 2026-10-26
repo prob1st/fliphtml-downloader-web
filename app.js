@@ -97,6 +97,12 @@ function showBook(b) {
 async function fetchPageBlob(name, quality, attempt = 1) {
   try {
     const r = await fetch(pageApiUrl(name, quality));
+    if (r.status === 429 && attempt <= 8 && !state.aborted) {
+      // Rate-limited by the edge protector: back off politely and retry.
+      const retryAfter = parseInt(r.headers.get("Retry-After") || "2", 10) || 2;
+      await new Promise((res) => setTimeout(res, Math.min(retryAfter, 15) * 1000 + 250));
+      return fetchPageBlob(name, quality, attempt + 1);
+    }
     if (!r.ok) throw new Error("HTTP " + r.status);
     const blob = await r.blob();
     if (!blob.type.startsWith("image/") && blob.size < 512) throw new Error("geçersiz görsel");

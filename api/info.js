@@ -4,6 +4,8 @@ const lib = require("./_lib");
 
 module.exports = async (req, res) => {
   try {
+    if (req.method !== "GET" && req.method !== "HEAD")
+      return lib.sendJson(res, 405, { error: "Method not allowed" });
     const url = new URL(req.url, "http://localhost");
     const input = url.searchParams.get("input") || "";
     if (!input) return lib.sendJson(res, 400, { error: "Bağlantı eksik" });
@@ -42,6 +44,8 @@ module.exports = async (req, res) => {
           "kitabın kendi bağlantısını deneyin.",
       });
     }
+    // Successful lookups are cached at the CDN for an hour: repeat requests
+    // for the same book never reach this function (cheap DDoS absorption).
     return lib.sendJson(res, 200, {
       title: lib.sanitizeName(title) || (bookId ? bookId.replace("/", "_") : "fliphtml5-kitap"),
       baseUrl,
@@ -51,7 +55,7 @@ module.exports = async (req, res) => {
       pageWidth: meta.pageWidth || null,
       pageHeight: meta.pageHeight || null,
       source,
-    });
+    }, "public, s-maxage=3600, stale-while-revalidate=86400");
   } catch (e) {
     return lib.sendJson(res, 400, { error: String(e && e.message ? e.message : e) });
   }

@@ -2,8 +2,13 @@
 // Tries size/extension fallbacks server-side and streams the first real image.
 const lib = require("./_lib");
 
+const MAX_IMAGE_BYTES = 30 * 1024 * 1024; // a single page never needs more
+const FETCH_TIMEOUT_MS = 20000;
+
 module.exports = async (req, res) => {
   try {
+    if (req.method !== "GET" && req.method !== "HEAD")
+      return lib.sendJson(res, 405, { error: "Method not allowed" });
     const url = new URL(req.url, "http://localhost");
     const base = url.searchParams.get("base") || "";
     const name = url.searchParams.get("name") || "";
@@ -39,13 +44,20 @@ module.exports = async (req, res) => {
 
     for (const u of sameHost) {
       let r;
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS);
       try {
-        r = await fetch(u, { headers: { "User-Agent": lib.UA } });
+        r = await fetch(u, { headers: { "User-Agent": lib.UA }, signal: ctl.signal });
       } catch {
         continue;
+      } finally {
+        clearTimeout(timer);
       }
       if (!r.ok) continue;
+      const declared = +(r.headers.get("content-length") || 0);
+      if (declared > MAX_IMAGE_BYTES) continue; // try a smaller fallback size
       const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length > MAX_IMAGE_BYTES) continue;
       if (!lib.looksLikeImage(buf)) continue;
       res.writeHead(200, {
         "Content-Type": lib.contentTypeFor(u, r.headers.get("content-type")),

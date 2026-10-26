@@ -262,11 +262,15 @@ function contentTypeFor(url, fallback) {
 // Legacy probing: files/large/1.jpg, 2.jpg, ...
 // ---------------------------------------------------------------------------
 
-async function probePages(baseUrl, maxMisses = 12, hardLimit = 3000) {
+async function probePages(baseUrl, maxMisses = 12, hardLimit = 2000, budgetMs = 25000) {
+  // Time-budgeted: probing fires many outbound requests, so cap how long one
+  // /api/info call may spend here (abuse/amplification guard).
+  const deadline = Date.now() + budgetMs;
   const exts = ["jpg", "webp", "png", "jpeg"];
   const found = [];
   let misses = 0;
   for (let batchStart = 1; batchStart <= hardLimit && misses < maxMisses; batchStart += 10) {
+    if (Date.now() > deadline) break;
     const batch = [];
     for (let n = batchStart; n < batchStart + 10 && n <= hardLimit; n++) {
       batch.push(
@@ -305,11 +309,11 @@ async function probePages(baseUrl, maxMisses = 12, hardLimit = 3000) {
 // tiny response helpers (plain Node style, work on Vercel and locally)
 // ---------------------------------------------------------------------------
 
-function sendJson(res, status, obj) {
+function sendJson(res, status, obj, cacheControl = "no-store") {
   const body = JSON.stringify(obj);
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store",
+    "Cache-Control": cacheControl,
   });
   res.end(body);
 }
