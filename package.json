@@ -1,0 +1,12 @@
+{
+  "name": "fliphtml-downloader-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web version of fliphtml-downloader: FlipHTML5 flipbooks to PDF/ZIP in the browser",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "node dev-server.js"
+  }
+}

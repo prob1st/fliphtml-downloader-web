@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FlipHTML Downloader — FlipHTML5 kitaplarını PDF olarak indir</title>
+<meta name="description" content="FlipHTML5 flipbook'larını tarayıcıda PDF veya ZIP olarak indirin. Kurulum yok, ücretsiz. Şifreli yeni format kitaplar dahil." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="brand-icon">📖</span>
+    <span>FlipHTML <strong>Downloader</strong></span>
+  </a>
+  <nav>
+    <a href="#nasil">Nasıl çalışır?</a>
+    <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub (CLI sürümü)</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>FlipHTML5 kitabını <span class="grad">PDF</span> olarak indir</h1>
+    <p class="subtitle">
+      Kitap bağlantısını yapıştır — sayfaları toplayıp tek PDF (istersen ZIP) haline getirelim.
+      Kurulum yok, kayıt yok. Yeni <em>şifreli</em> kitaplar dahil.
+    </p>
+
+    <form id="fetch-form" class="fetch-box">
+      <input id="url-input" type="text" inputmode="url" autocomplete="off" spellcheck="false"
+             placeholder="https://fliphtml5.com/xxxxx/yyyy  veya  xxxxx/yyyy" />
+      <button id="fetch-btn" type="submit">Kitabı Getir</button>
+    </form>
+    <p class="hint">
+      Örnek denemek için:
+      <button type="button" id="sample-btn" class="linklike">35 sayfalık örnek kitap</button>
+      · Kitaplık (bookcase) bağlantısı değil, kitabın kendi bağlantısını kullan.
+    </p>
+    <div id="fetch-status" class="status" hidden></div>
+  </section>
+
+  <section id="book-card" class="card" hidden>
+    <div class="book-head">
+      <img id="book-cover" alt="Kapak" hidden />
+      <div class="book-meta">
+        <h2 id="book-title">—</h2>
+        <ul>
+          <li><span>Sayfa sayısı</span><strong id="book-pages">—</strong></li>
+          <li><span>Kaynak</span><strong id="book-source">—</strong></li>
+          <li><span>Adres</span><a id="book-link" href="#" target="_blank" rel="noopener">kitabı aç ↗</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="options">
+      <label>Format
+        <select id="opt-format">
+          <option value="pdf" selected>PDF</option>
+          <option value="zip">ZIP (sayfa görselleri)</option>
+          <option value="both">PDF + ZIP</option>
+        </select>
+      </label>
+      <label>Görsel kalitesi
+        <select id="opt-quality">
+          <option value="large" selected>Büyük (large)</option>
+          <option value="medium">Orta (medium)</option>
+          <option value="thumb">Küçük (thumb)</option>
+        </select>
+      </label>
+      <label>Başlangıç sayfası
+        <input id="opt-start" type="number" min="1" value="1" />
+      </label>
+      <label>Bitiş sayfası
+        <input id="opt-end" type="number" min="1" placeholder="son sayfa" />
+      </label>
+      <label>PDF JPEG kalitesi: <span id="jpeg-val">%90</span>
+        <input id="opt-jpeg" type="range" min="50" max="100" value="90" />
+      </label>
+    </div>
+
+    <div class="actions">
+      <button id="download-btn" class="primary">⬇ İndirmeyi Başlat</button>
+      <button id="cancel-btn" class="danger" hidden>Durdur</button>
+    </div>
+
+    <div id="progress-wrap" hidden>
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <p id="progress-text" class="progress-text">Hazırlanıyor…</p>
+    </div>
+
+    <pre id="log" class="log" hidden></pre>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <div class="feature-icon">🔓</div>
+      <h3>Şifreli kitaplar dahil</h3>
+      <p>Yeni FlipHTML5 kitaplarının şifreli sayfa listesi, sitenin kendi WASM çözücüsüyle sunucu tarafında güvenle açılır.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🧩</div>
+      <h3>Tarayıcıda birleşir</h3>
+      <p>PDF/ZIP senin tarayıcında oluşturulur; sunucuda kitap saklanmaz, süre limitine takılmazsın.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <h3>Hızlı ve dayanıklı</h3>
+      <p>Paralel indirme, otomatik tekrar deneme ve kalite yedekleri (large → medium → thumb, webp ↔ jpg).</p>
+    </div>
+  </section>
+
+  <section id="nasil" class="how">
+    <h2>Nasıl çalışır?</h2>
+    <ol>
+      <li>Kitabı <a href="https://fliphtml5.com" target="_blank" rel="noopener">FlipHTML5</a>'te aç ve bağlantısını kopyala
+          (ör. <code>https://fliphtml5.com/xxxxx/yyyy</code>).</li>
+      <li>Bağlantıyı yukarı yapıştırıp <strong>Kitabı Getir</strong>'e bas; kitabın sayfa listesi çıkarılır (şifreliyse çözülür).</li>
+      <li>Format ve sayfa aralığını seçip <strong>İndirmeyi Başlat</strong>'a bas. PDF/ZIP tarayıcında oluşturulup indirilir.</li>
+    </ol>
+    <p class="note">
+      Çok büyük kitaplarda (300+ sayfa) tarayıcı belleği zorlanabilir; sayfa aralığıyla parça parça indirmek daha rahattır.
+      Komut satırı sürümü için <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub reposuna</a> bak.
+    </p>
+  </section>
+</main>
+
+<footer>
+  <p>Bu araç yalnızca indirme hakkına sahip olduğun kitaplar için, eğitim amaçlıdır.
+     Telif haklarına ve FlipHTML5 hizmet şartlarına saygı göster.</p>
+  <p>📖 FlipHTML Downloader · <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub</a> · MIT</p>
+</footer>
+</body>
+</html>
