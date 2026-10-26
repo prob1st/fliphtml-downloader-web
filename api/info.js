@@ -6,11 +6,13 @@ module.exports = async (req, res) => {
   try {
     if (req.method !== "GET" && req.method !== "HEAD")
       return lib.sendJson(res, 405, { error: "Method not allowed" });
+    const lang = lib.langOf(req);
+    const en = lang === "en";
     const url = new URL(req.url, "http://localhost");
     const input = url.searchParams.get("input") || "";
-    if (!input) return lib.sendJson(res, 400, { error: "Bağlantı eksik" });
+    if (!input) return lib.sendJson(res, 400, { error: en ? "Missing link" : "Bağlantı eksik" });
 
-    const { baseUrl, bookId } = lib.parseBookInput(input);
+    const { baseUrl, bookId } = lib.parseBookInput(input, lang);
     const config = await lib.fetchConfig(baseUrl);
 
     let names = null;
@@ -38,10 +40,12 @@ module.exports = async (req, res) => {
     }
     if (!names.length) {
       return lib.sendJson(res, 404, {
-        error:
-          "Sayfa listesi bulunamadı veya çözülemedi. Kitap gizli, kaldırılmış " +
-          "ya da şifre korumalı olabilir; kitaplık (bookcase) bağlantısı yerine " +
-          "kitabın kendi bağlantısını deneyin.",
+        error: en
+          ? "The page list could not be found or decoded. The book may be private, " +
+            "removed, or password-protected; use the book's own link rather than a bookcase link."
+          : "Sayfa listesi bulunamadı veya çözülemedi. Kitap gizli, kaldırılmış " +
+            "ya da şifre korumalı olabilir; kitaplık (bookcase) bağlantısı yerine " +
+            "kitabın kendi bağlantısını deneyin.",
       });
     }
     // Successful lookups are cached at the CDN for an hour: repeat requests

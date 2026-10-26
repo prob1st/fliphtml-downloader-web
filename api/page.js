@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
   try {
     if (req.method !== "GET" && req.method !== "HEAD")
       return lib.sendJson(res, 405, { error: "Method not allowed" });
+    const en = lib.langOf(req) === "en";
     const url = new URL(req.url, "http://localhost");
     const base = url.searchParams.get("base") || "";
     const name = url.searchParams.get("name") || "";
@@ -20,17 +21,17 @@ module.exports = async (req, res) => {
     try {
       baseUrl = new URL(base);
     } catch {
-      return lib.sendJson(res, 400, { error: "Geçersiz base" });
+      return lib.sendJson(res, 400, { error: en ? "Invalid base" : "Geçersiz base" });
     }
     if (baseUrl.protocol !== "https:" && baseUrl.protocol !== "http:")
-      return lib.sendJson(res, 400, { error: "Geçersiz protokol" });
+      return lib.sendJson(res, 400, { error: en ? "Invalid protocol" : "Geçersiz protokol" });
     if (lib.isPrivateHost(baseUrl.hostname))
-      return lib.sendJson(res, 403, { error: "Bu adrese izin verilmiyor" });
+      return lib.sendJson(res, 403, { error: en ? "This address is not allowed" : "Bu adrese izin verilmiyor" });
     if (!baseUrl.pathname.endsWith("/")) baseUrl.pathname += "/";
 
     if (!name || name.includes("..") || !/^[\w.\-/]+$/i.test(name) ||
         !/\.(jpe?g|webp|png|gif)$/i.test(name))
-      return lib.sendJson(res, 400, { error: "Geçersiz sayfa adı" });
+      return lib.sendJson(res, 400, { error: en ? "Invalid page name" : "Geçersiz sayfa adı" });
 
     const candidates = lib.candidateUrls(baseUrl.href, name, quality);
     // Never proxy anything outside the book host.
@@ -67,7 +68,7 @@ module.exports = async (req, res) => {
       });
       return res.end(buf);
     }
-    return lib.sendJson(res, 404, { error: "Sayfa bulunamadı: " + name });
+    return lib.sendJson(res, 404, { error: (en ? "Page not found: " : "Sayfa bulunamadı: ") + name });
   } catch (e) {
     return lib.sendJson(res, 502, { error: String(e && e.message ? e.message : e) });
   }

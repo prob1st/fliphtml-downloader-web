@@ -116,6 +116,28 @@ button { font: inherit; cursor: pointer; }
 .how code { background: rgba(255,255,255,0.09); padding: 1px 7px; border-radius: 6px; font-size: 0.88em; }
 .note { color: var(--muted); line-height: 1.6; font-size: 0.94rem; }
 footer { text-align: center; color: var(--muted); font-size: 0.88rem; padding: 26px 18px 36px; line-height: 1.7; }
+.top-right { display: flex; align-items: center; gap: 22px; }
+.lang-switch { display: flex; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+.lang-switch button {
+  border: 0; background: transparent; color: var(--muted); font-weight: 700; font-size: 0.83rem;
+  padding: 6px 13px; border-radius: 999px; cursor: pointer; letter-spacing: 0.04em;
+}
+.lang-switch button.active { background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff; }
+.consent {
+  display: flex; gap: 11px; align-items: flex-start; margin-top: 20px; cursor: pointer;
+  background: rgba(255, 196, 0, 0.06); border: 1px solid rgba(255, 196, 0, 0.28);
+  border-radius: 12px; padding: 13px 15px; font-size: 0.9rem; line-height: 1.5; color: #e8dfc8;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.consent input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--accent2); flex: none; }
+.consent.warn { border-color: var(--danger); background: rgba(255, 91, 110, 0.13); }
+.legal {
+  margin-top: 26px; border-radius: var(--radius); padding: clamp(18px, 3.5vw, 30px);
+  background: rgba(255, 196, 0, 0.045); border: 1px solid rgba(255, 196, 0, 0.25);
+}
+.legal h2 { margin-top: 0; font-size: 1.25rem; }
+.legal p { color: #d8d2bd; line-height: 1.7; font-size: 0.96rem; }
+.book-meta li span { min-width: 105px; }
 @media (max-width: 560px) {
   .fetch-box { flex-direction: column; border-radius: 22px; }
   .book-head { flex-direction: column; }

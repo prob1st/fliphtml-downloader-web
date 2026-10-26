@@ -149,6 +149,9 @@ export default async function middleware(request) {
     return jsonError(403, "Cross-site API access is not allowed");
   }
 
+  const langHdr = (request.headers.get("x-lang") || request.headers.get("accept-language") || "tr").toLowerCase();
+  const en = langHdr.startsWith("en");
+
   // 3) Per-IP rate limits (route bucket + overall bucket).
   prune(Date.now());
   const ip = clientIp(request);
@@ -166,7 +169,9 @@ export default async function middleware(request) {
     if (!res.ok) {
       return jsonError(
         429,
-        "Çok fazla istek gönderdin. Lütfen biraz bekleyip tekrar dene.",
+        en
+          ? "Too many requests. Please wait a bit and try again."
+          : "Çok fazla istek gönderdin. Lütfen biraz bekleyip tekrar dene.",
         {
           "Retry-After": String(res.retryAfter),
           "X-RateLimit-Limit": String(res.limit),

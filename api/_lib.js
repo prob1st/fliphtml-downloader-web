@@ -24,9 +24,16 @@ function isPrivateHost(hostname) {
 }
 
 /** Accept a book ID (xxxxx/yyyy) or a fliphtml5.com / custom-domain URL. */
-function parseBookInput(raw) {
+function langOf(req) {
+  const h = (req && req.headers) || {};
+  const v = String(h["x-lang"] || h["accept-language"] || "tr").toLowerCase();
+  return v.startsWith("en") ? "en" : "tr";
+}
+
+function parseBookInput(raw, lang = "tr") {
+  const en = lang === "en";
   raw = String(raw || "").trim().replace(/^['"]|['"]$/g, "");
-  if (!raw) throw new Error("Boş bağlantı");
+  if (!raw) throw new Error(en ? "Empty link" : "Boş bağlantı");
 
   const idMatch = raw.match(/^([\w-]+)\/([\w-]+)\/?(?:[?#].*)?$/);
   if (idMatch && !raw.includes("://") && !idMatch[1].includes(".")) {
@@ -38,22 +45,22 @@ function parseBookInput(raw) {
   try {
     u = new URL(raw);
   } catch {
-    throw new Error("Geçersiz bağlantı");
+    throw new Error(en ? "Invalid link" : "Geçersiz bağlantı");
   }
   if (u.protocol !== "https:" && u.protocol !== "http:")
-    throw new Error("Yalnızca http/https bağlantıları desteklenir");
-  if (isPrivateHost(u.hostname)) throw new Error("Bu adrese izin verilmiyor");
+    throw new Error(en ? "Only http/https links are supported" : "Yalnızca http/https bağlantıları desteklenir");
+  if (isPrivateHost(u.hostname)) throw new Error(en ? "This address is not allowed" : "Bu adrese izin verilmiyor");
 
   const segments = u.pathname.split("/").filter(Boolean);
   if (segments.length && /^index\.html?$/i.test(segments[segments.length - 1]))
     segments.pop();
 
   if (u.hostname.toLowerCase().endsWith("fliphtml5.com")) {
-    if (segments.length < 2) throw new Error("Bağlantıda kitap kimliği yok");
+    if (segments.length < 2) throw new Error(en ? "No book ID in the link" : "Bağlantıda kitap kimliği yok");
     const id = segments[0] + "/" + segments[1];
     return { baseUrl: `https://online.fliphtml5.com/${id}/`, bookId: id };
   }
-  if (!segments.length) throw new Error("Bağlantıda kitap yolu yok");
+  if (!segments.length) throw new Error(en ? "No book path in the link" : "Bağlantıda kitap yolu yok");
   return { baseUrl: `${u.protocol}//${u.host}/` + segments.join("/") + "/", bookId: null };
 }
 
@@ -322,6 +329,7 @@ module.exports = {
   UA,
   SIZES,
   parseBookInput,
+  langOf,
   sanitizeName,
   isPrivateHost,
   fetchText,

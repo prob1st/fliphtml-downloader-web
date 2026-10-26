@@ -17,80 +17,93 @@
     <span class="brand-icon">📖</span>
     <span>FlipHTML <strong>Downloader</strong></span>
   </a>
-  <nav>
-    <a href="#nasil">Nasıl çalışır?</a>
-    <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub (CLI sürümü)</a>
-  </nav>
+  <div class="top-right">
+    <nav>
+      <a href="#nasil" data-i18n="navHow">Nasıl çalışır?</a>
+      <a href="#yasal" data-i18n="navLegal">Yasal uyarı</a>
+      <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub (CLI)</a>
+    </nav>
+    <div class="lang-switch" role="group" aria-label="Language / Dil">
+      <button type="button" id="lang-tr">TR</button>
+      <button type="button" id="lang-en">EN</button>
+    </div>
+  </div>
 </header>
 
 <main>
   <section class="hero">
-    <h1>FlipHTML5 kitabını <span class="grad">PDF</span> olarak indir</h1>
-    <p class="subtitle">
+    <h1 data-i18n-html="heroTitle">FlipHTML5 kitabını <span class="grad">PDF</span> olarak indir</h1>
+    <p class="subtitle" data-i18n-html="heroSub">
       Kitap bağlantısını yapıştır — sayfaları toplayıp tek PDF (istersen ZIP) haline getirelim.
       Kurulum yok, kayıt yok. Yeni <em>şifreli</em> kitaplar dahil.
     </p>
 
     <form id="fetch-form" class="fetch-box">
       <input id="url-input" type="text" inputmode="url" autocomplete="off" spellcheck="false"
+             data-i18n-ph="urlPlaceholder"
              placeholder="https://fliphtml5.com/xxxxx/yyyy  veya  xxxxx/yyyy" />
-      <button id="fetch-btn" type="submit">Kitabı Getir</button>
+      <button id="fetch-btn" type="submit" data-i18n="fetchBtn">Kitabı Getir</button>
     </form>
     <p class="hint">
-      Örnek denemek için:
-      <button type="button" id="sample-btn" class="linklike">35 sayfalık örnek kitap</button>
-      · Kitaplık (bookcase) bağlantısı değil, kitabın kendi bağlantısını kullan.
+      <span data-i18n="hintBefore">Örnek denemek için:</span>
+      <button type="button" id="sample-btn" class="linklike" data-i18n="sampleBtn">35 sayfalık örnek kitap</button>
+      <span data-i18n="hintAfter">· Kitaplık (bookcase) bağlantısı değil, kitabın kendi bağlantısını kullan.</span>
     </p>
     <div id="fetch-status" class="status" hidden></div>
   </section>
 
   <section id="book-card" class="card" hidden>
     <div class="book-head">
-      <img id="book-cover" alt="Kapak" hidden />
+      <img id="book-cover" alt="Kapak" data-i18n-alt="coverAlt" hidden />
       <div class="book-meta">
         <h2 id="book-title">—</h2>
         <ul>
-          <li><span>Sayfa sayısı</span><strong id="book-pages">—</strong></li>
-          <li><span>Kaynak</span><strong id="book-source">—</strong></li>
-          <li><span>Adres</span><a id="book-link" href="#" target="_blank" rel="noopener">kitabı aç ↗</a></li>
+          <li><span data-i18n="lblPages">Sayfa sayısı</span><strong id="book-pages">—</strong></li>
+          <li><span data-i18n="lblSource">Kaynak</span><strong id="book-source">—</strong></li>
+          <li><span data-i18n="lblAddress">Adres</span><a id="book-link" href="#" target="_blank" rel="noopener" data-i18n="openBook">kitabı aç ↗</a></li>
         </ul>
       </div>
     </div>
 
     <div class="options">
-      <label>Format
+      <label><span data-i18n="optFormat">Format</span>
         <select id="opt-format">
           <option value="pdf" selected>PDF</option>
-          <option value="zip">ZIP (sayfa görselleri)</option>
+          <option value="zip" data-i18n="optZip">ZIP (sayfa görselleri)</option>
           <option value="both">PDF + ZIP</option>
         </select>
       </label>
-      <label>Görsel kalitesi
+      <label><span data-i18n="optQuality">Görsel kalitesi</span>
         <select id="opt-quality">
-          <option value="large" selected>Büyük (large)</option>
-          <option value="medium">Orta (medium)</option>
-          <option value="thumb">Küçük (thumb)</option>
+          <option value="large" selected data-i18n="qLarge">Büyük (large)</option>
+          <option value="medium" data-i18n="qMedium">Orta (medium)</option>
+          <option value="thumb" data-i18n="qThumb">Küçük (thumb)</option>
         </select>
       </label>
-      <label>Başlangıç sayfası
+      <label><span data-i18n="optStart">Başlangıç sayfası</span>
         <input id="opt-start" type="number" min="1" value="1" />
       </label>
-      <label>Bitiş sayfası
-        <input id="opt-end" type="number" min="1" placeholder="son sayfa" />
+      <label><span data-i18n="optEnd">Bitiş sayfası</span>
+        <input id="opt-end" type="number" min="1" data-i18n-ph="endPlaceholder" placeholder="son sayfa" />
       </label>
-      <label>PDF JPEG kalitesi: <span id="jpeg-val">%90</span>
+      <label><span><span data-i18n="optJpeg">PDF JPEG kalitesi</span>: <span id="jpeg-val">%90</span></span>
         <input id="opt-jpeg" type="range" min="50" max="100" value="90" />
       </label>
     </div>
 
+    <label class="consent">
+      <input type="checkbox" id="consent" />
+      <span data-i18n="consent">Bu kitabı indirme hakkına sahip olduğumu ve indirme/çoğaltmadan doğacak telif sorumluluğunun bana ait olduğunu kabul ediyorum.</span>
+    </label>
+
     <div class="actions">
-      <button id="download-btn" class="primary">⬇ İndirmeyi Başlat</button>
-      <button id="cancel-btn" class="danger" hidden>Durdur</button>
+      <button id="download-btn" class="primary">⬇ <span data-i18n="downloadBtn">İndirmeyi Başlat</span></button>
+      <button id="cancel-btn" class="danger" data-i18n="cancelBtn" hidden>Durdur</button>
     </div>
 
     <div id="progress-wrap" hidden>
       <div class="progress-bar"><div id="progress-fill"></div></div>
-      <p id="progress-text" class="progress-text">Hazırlanıyor…</p>
+      <p id="progress-text" class="progress-text" data-i18n="preparing">Hazırlanıyor…</p>
     </div>
 
     <pre id="log" class="log" hidden></pre>
@@ -99,39 +112,58 @@
   <section class="features">
     <div class="feature">
       <div class="feature-icon">🔓</div>
-      <h3>Şifreli kitaplar dahil</h3>
-      <p>Yeni FlipHTML5 kitaplarının şifreli sayfa listesi, sitenin kendi WASM çözücüsüyle sunucu tarafında güvenle açılır.</p>
+      <h3 data-i18n="f1Title">Şifreli kitaplar dahil</h3>
+      <p data-i18n="f1Desc">Yeni FlipHTML5 kitaplarının şifreli sayfa listesi, sitenin kendi WASM çözücüsüyle sunucu tarafında güvenle açılır.</p>
     </div>
     <div class="feature">
       <div class="feature-icon">🧩</div>
-      <h3>Tarayıcıda birleşir</h3>
-      <p>PDF/ZIP senin tarayıcında oluşturulur; sunucuda kitap saklanmaz, süre limitine takılmazsın.</p>
+      <h3 data-i18n="f2Title">Tarayıcıda birleşir</h3>
+      <p data-i18n="f2Desc">PDF/ZIP senin tarayıcında oluşturulur; sunucuda kitap saklanmaz, süre limitine takılmazsın.</p>
     </div>
     <div class="feature">
       <div class="feature-icon">⚡</div>
-      <h3>Hızlı ve dayanıklı</h3>
-      <p>Paralel indirme, otomatik tekrar deneme ve kalite yedekleri (large → medium → thumb, webp ↔ jpg).</p>
+      <h3 data-i18n="f3Title">Hızlı ve dayanıklı</h3>
+      <p data-i18n="f3Desc">Paralel indirme, otomatik tekrar deneme ve kalite yedekleri (large → medium → thumb, webp ↔ jpg).</p>
     </div>
   </section>
 
   <section id="nasil" class="how">
-    <h2>Nasıl çalışır?</h2>
+    <h2 data-i18n="howTitle">Nasıl çalışır?</h2>
     <ol>
-      <li>Kitabı <a href="https://fliphtml5.com" target="_blank" rel="noopener">FlipHTML5</a>'te aç ve bağlantısını kopyala
+      <li data-i18n-html="how1">Kitabı <a href="https://fliphtml5.com" target="_blank" rel="noopener">FlipHTML5</a>'te aç ve bağlantısını kopyala
           (ör. <code>https://fliphtml5.com/xxxxx/yyyy</code>).</li>
-      <li>Bağlantıyı yukarı yapıştırıp <strong>Kitabı Getir</strong>'e bas; kitabın sayfa listesi çıkarılır (şifreliyse çözülür).</li>
-      <li>Format ve sayfa aralığını seçip <strong>İndirmeyi Başlat</strong>'a bas. PDF/ZIP tarayıcında oluşturulup indirilir.</li>
+      <li data-i18n-html="how2">Bağlantıyı yukarı yapıştırıp <strong>Kitabı Getir</strong>'e bas; kitabın sayfa listesi çıkarılır (şifreliyse çözülür).</li>
+      <li data-i18n-html="how3">Format ve sayfa aralığını seçip <strong>İndirmeyi Başlat</strong>'a bas. PDF/ZIP tarayıcında oluşturulup indirilir.</li>
     </ol>
-    <p class="note">
+    <p class="note" data-i18n-html="howNote">
       Çok büyük kitaplarda (300+ sayfa) tarayıcı belleği zorlanabilir; sayfa aralığıyla parça parça indirmek daha rahattır.
       Komut satırı sürümü için <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub reposuna</a> bak.
+    </p>
+  </section>
+
+  <section id="yasal" class="legal">
+    <h2 data-i18n="legalTitle">⚖️ Yasal Uyarı ve Sorumluluk Reddi</h2>
+    <p data-i18n-html="legal1">
+      Bu site yalnızca teknik bir araçtır. <strong>Sunucusunda hiçbir kitap, sayfa veya dosya barındırmaz, saklamaz ve yayınlamaz.</strong>
+      Tüm içerik, kullanıcının verdiği bağlantı üzerinden üçüncü taraf kaynaklardan anlık olarak aktarılır ve
+      kullanıcının kendi tarayıcısında işlenir.
+    </p>
+    <p data-i18n-html="legal2">
+      <strong>İndirilen, kopyalanan, çoğaltılan veya dağıtılan her türlü içeriğe ilişkin telif hakkı ve diğer tüm
+      yasal sorumluluk tamamen kullanıcıya aittir.</strong> Bu site ve site sahibi; kullanıcıların indirdiği,
+      yasa dışı biçimde çoğalttığı veya paylaştığı kitaplardan ve bunlardan doğabilecek hiçbir zarar, talep veya
+      yaptırımdan sorumlu değildir ve sorumlu tutulamaz.
+    </p>
+    <p data-i18n-html="legal3">
+      Bu aracı yalnızca <strong>sahibi olduğunuz</strong> ya da indirme/çoğaltma izninizin bulunduğu içerikler için kullanın.
+      İndirmeye başlamanız, bu uyarıyı okuduğunuz ve kabul ettiğiniz anlamına gelir. Hak sahipleri,
+      taleplerini <a href="https://github.com/prob1st/fliphtml-downloader-web/issues" target="_blank" rel="noopener">GitHub üzerinden</a> iletebilir.
     </p>
   </section>
 </main>
 
 <footer>
-  <p>Bu araç yalnızca indirme hakkına sahip olduğun kitaplar için, eğitim amaçlıdır.
-     Telif haklarına ve FlipHTML5 hizmet şartlarına saygı göster.</p>
+  <p data-i18n="footerLegal">Bu site hiçbir içerik barındırmaz; indirilen içeriklerden doğan tüm yasal sorumluluk kullanıcıya aittir. Yalnızca hakkına sahip olduğun kitapları indir.</p>
   <p>📖 FlipHTML Downloader · <a href="https://github.com/prob1st/fliphtml-downloader" target="_blank" rel="noopener">GitHub</a> · MIT</p>
 </footer>
 </body>
